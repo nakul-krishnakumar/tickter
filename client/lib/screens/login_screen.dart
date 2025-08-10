@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -80,7 +81,21 @@ class LoginScreen extends StatelessWidget {
                         '',
                         style: TextStyle(fontSize: 18),
                       ),
-                    )
+                    ),
+                    const SizedBox(height: 8), // Space before the sign up text
+
+                    // VVVV ADD THE SIGN UP TEXT HERE VVVV
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                          );
+                        },
+                        child: const Text('Sign up'),
+                      ),
+                    ),
                   ],
                 ),
               ),
