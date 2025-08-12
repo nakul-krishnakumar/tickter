@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'signup_screen.dart';
+import 'package:tickter/screens/signup_screen_professor.dart';
+import 'signup_screen_student.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -63,38 +64,53 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 32.0),
-                    ElevatedButton.icon(
-                        onPressed: (){
-
-                        },
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(30),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: Image.asset(
-                          'assets/images/login_button.png',
-                      height: 50,
-                      ),
-                      label: const Text(
-                        '',
-                        style: TextStyle(fontSize: 18),
+                    InkWell(
+                      onTap: () {
+                        // TODO: Add login logic here
+                      },
+                      // This makes the ripple effect circular, which looks nice for round buttons.
+                      // You can remove it for a rectangular ripple.
+                      customBorder: const CircleBorder(),
+                      child: Image.asset(
+                        'assets/images/login_button.png',
+                        height: 50,
                       ),
                     ),
-                    const SizedBox(height: 8), // Space before the sign up text
+                    const SizedBox(height: 5), // Space before the sign up text
 
                     // VVVV ADD THE SIGN UP TEXT HERE VVVV
                     Align(
                       alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => const SignUpScreen()),
-                          );
-                        },
-                        child: const Text('Sign up'),
-                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            onPressed: () {
+                              Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => const Student_SignUpScreen()),
+                              );
+                            },
+                            child: const Text('Sign up as student'),
+                          ),
+                          const SizedBox(height: 0),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            onPressed: () {
+                              Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>  ProfessorSignUpScreen()),
+                              );
+                            },
+                            child: const Text('Sign up as Professor/staff'),
+                          )
+                        ],
+                      )
+
+
                     ),
                   ],
                 ),
