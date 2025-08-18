@@ -78,7 +78,6 @@ class LoginScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 5), // Space before the sign up text
 
-                    // VVVV ADD THE SIGN UP TEXT HERE VVVV
                     Align(
                       alignment: Alignment.centerRight,
                       child: Column(
@@ -86,7 +85,9 @@ class LoginScreen extends StatelessWidget {
                         children: [
                           TextButton(
                             style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
                               visualDensity: VisualDensity.compact,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             onPressed: () {
                               Navigator.push(context,
