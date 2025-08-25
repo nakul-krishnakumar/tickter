@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.tickter"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion =  "25.2.9519653"
+    ndkVersion =  "29.0.13846066"
 
 
     compileOptions {
