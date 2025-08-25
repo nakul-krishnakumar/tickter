@@ -10,24 +10,25 @@ class LoginScreen extends StatefulWidget {
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-class _LoginScreenState extends State<LoginScreen>{
+
+class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future<void> _signIn() async{
-    try{
+  Future<void> _signIn() async {
+    try {
       await Supabase.instance.client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if(mounted){
+      if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       }
-    }catch(error){
-      if(mounted){
+    } catch (error) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Sign in failed : ${error.toString()}'),
@@ -39,19 +40,18 @@ class _LoginScreenState extends State<LoginScreen>{
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      // Use a SingleChildScrollView to prevent overflow when the keyboard appears
       body: SingleChildScrollView(
         child: Container(
-          // Ensure the content is at least as tall as the screen
           height: MediaQuery.of(context).size.height,
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Padding(
@@ -59,14 +59,11 @@ class _LoginScreenState extends State<LoginScreen>{
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 1. ICON MOVED TO THE TOP
                 SizedBox(
-                  height: 100, // Adjust size as needed
+                  height: 100,
                   child: Image.asset('assets/images/login_icon.png'),
                 ),
-                const SizedBox(height: 24), // Space between icon and card
-
-                // This is your original white card
+                const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
@@ -82,7 +79,6 @@ class _LoginScreenState extends State<LoginScreen>{
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // 2. NEW BOX FOR FORMS
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -92,12 +88,10 @@ class _LoginScreenState extends State<LoginScreen>{
                         ),
                         keyboardType: TextInputType.emailAddress,
                       ),
-                      const SizedBox(height: 16.0), // Spacing between fields
-
-                      // PASSWORD FIELD
+                      const SizedBox(height: 16.0),
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true, // Hides the password
+                        obscureText: true,
                         decoration: const InputDecoration(
                           labelText: 'Password',
                           prefixIcon: Icon(Icons.lock_outline),
@@ -107,48 +101,54 @@ class _LoginScreenState extends State<LoginScreen>{
                       const SizedBox(height: 32.0),
                       InkWell(
                         onTap: _signIn,
-                        // This makes the ripple effect circular, which looks nice for round buttons.
-                        // You can remove it for a rectangular ripple.
                         customBorder: const CircleBorder(),
                         child: Image.asset(
                           'assets/images/login_button.png',
                           height: 50,
                         ),
                       ),
-                      const SizedBox(height: 5), // Space before the sign up text
+                      const SizedBox(height: 5),
+                      // VVVV  THIS IS THE CORRECTLY PLACED WIDGET  VVVV
                       Align(
-                          alignment: Alignment.centerRight,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                                onPressed: () {
-                                  Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) => const Student_SignUpScreen()),
-                                  );
-                                },
-                                child: const Text('Sign up as student'),
+                        alignment: Alignment.centerRight,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              const SizedBox(height: 0),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                                onPressed: () {
-                                  Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) =>  ProfessorSignUpScreen()),
-                                  );
-                                },
-                                child: const Text('Sign up as Professor/staff'),
-                              )
-                            ],
-                          )
-
-
-                      ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                      const Student_SignUpScreen()),
+                                );
+                              },
+                              child: const Text('Sign up as student'),
+                            ),
+                            const SizedBox(height: 0),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProfessorSignUpScreen()),
+                                );
+                              },
+                              child: const Text('Sign up as Professor/staff'),
+                            )
+                          ],
+                        ),
+                      )
+                      // ^^^^  THIS IS THE CORRECTLY PLACED WIDGET  ^^^^
                     ],
                   ),
                 ),
