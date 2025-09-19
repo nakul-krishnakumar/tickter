@@ -2,7 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const authRouter = require("./routes/auth.route");
-const supabase = require("./db/conn");
+const postRouter = require("./routes/posts.route");
 
 require("dotenv").config();
 
@@ -18,6 +18,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/posts", postRouter);
 
 app.get("/", (req, res) => {
     res.status(200).json({
