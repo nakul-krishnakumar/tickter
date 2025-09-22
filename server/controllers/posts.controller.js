@@ -1,5 +1,6 @@
 const supabase = require("../db/conn");
 const path = require("path");
+const { moderateText } = require("../services/contentModeration");
 
 // Handler for uploading a post with text and image
 async function uploadPost(req, res) {
@@ -7,8 +8,51 @@ async function uploadPost(req, res) {
         const { title, content, author } = req.body;
         const files = req.files; // Array of images
 
+        // Step 1: Moderate the text content before proceeding
+        try {
+            // Combine title and content for moderation
+            const textToModerate = `${title || ""} ${content || ""}`.trim();
+
+            if (textToModerate) {
+                const moderationResult = await moderateText(textToModerate);
+                console.log("Moderation result:", moderationResult);
+
+                // Check if content violates policies (adjust thresholds as needed)
+                const { categoriesAnalysis } = moderationResult;
+
+                if (categoriesAnalysis) {
+                    // Define severity thresholds (0-7 scale)
+                    const SEVERITY_THRESHOLD = 2; // Adjust as needed
+
+                    for (const category of categoriesAnalysis) {
+                        if (category.severity >= SEVERITY_THRESHOLD) {
+                            return res.status(400).json({
+                                success: false,
+                                message: `Content violates community guidelines: ${category.category}`,
+                                category: category.category,
+                                severity: category.severity,
+                            });
+                        }
+                    }
+                }
+            }
+        } catch (moderationError) {
+            console.error("Content moderation failed:", moderationError);
+            // You can choose to either block the post or allow it if moderation fails
+            // For now, we'll log the error and continue
+        }
+
         let imageUrls = [];
 
+        // Step 2: Validate required fields
+        if (!title || !content || !author) {
+            return res.status(400).json({
+                success: false,
+                message: "Title, content, and author are required fields",
+            });
+        }
+
+        // Step 3: Upload images to Supabase Storage
         if (files && files.length > 0) {
             for (const file of files) {
                 const fileExt = path.extname(file.originalname);
