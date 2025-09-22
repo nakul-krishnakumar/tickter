@@ -3,6 +3,7 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 const authRouter = require("./routes/auth.route");
 const postRouter = require("./routes/posts.route");
+const { moderateText } = require("./services/contentModeration");
 
 require("dotenv").config();
 
