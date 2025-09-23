@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
-const { uploadPost } = require("../controllers/posts.controller");
+const {
+    uploadPost,
+} = require("../controllers/posts.controller");
 
 const router = express.Router();
 const upload = multer(); // Use memory storage for file uploads
