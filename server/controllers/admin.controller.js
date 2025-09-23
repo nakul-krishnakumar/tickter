@@ -31,7 +31,7 @@ async function uploadTimetable(req, res) {
         } catch (aiError) {
             console.error("AI parsing failed", aiError);
 
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 message: aiError,
                 data: {}
