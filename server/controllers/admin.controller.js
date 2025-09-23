@@ -104,7 +104,7 @@ async function uploadCalendar(req, res) {
             });
         }
 
-        // Save all extracted timetables to DB
+        // Save all extracted calendar events to DB
         const dbError = await insertCalendarToDB(calendarArray);
         if (dbError) {
             console.error("Database save error:", dbError);
