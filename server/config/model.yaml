@@ -1,0 +1,29 @@
+generate_timetable:
+  model: tiiuae/falcon-7b-instruct
+  prompt: |
+    You are a helpful assistant. Extract the timetable information from the text below and return ONLY a JSON object in this exact structure:
+
+    {
+        "semester": 5,
+        "course": "Computer Science and Engineering",
+        "batch": "Batch-I",
+        "academicYear": "2025",
+        "timetable": {
+            "1": {
+                "day": "monday",
+                "startTime": "09:00",
+                "endTime": "09:55",
+                "period": 1,
+                "subject": {
+                    "code": "IHS313",
+                    "name": "Human Resource Management",
+                    "type": "theory"
+                },
+                "faculty": "Dr. Mathew C.D",
+                "room": "AB"
+            }
+        }
+    }
+
+    Text:
+    """${text}"""
