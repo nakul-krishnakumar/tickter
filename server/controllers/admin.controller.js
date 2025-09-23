@@ -1,7 +1,13 @@
-const supabase = require("../db/conn");
-const { extractTimetableData, insertTimetableToDB } = require("../services/timetableExtraction");
+const {
+    extractTimetableData,
+    insertMultipleTimetablesToDB,
+} = require("../services/timetableExtraction");
 
-// Enhanced timetable upload with Hugging Face LLM parsing
+const {
+    extractCalendarData,
+    insertCalendarToDB,
+} = require("../services/calendarExtraction");
+
 async function uploadTimetable(req, res) {
     try {
         const file = req.file;
@@ -9,54 +15,48 @@ async function uploadTimetable(req, res) {
         if (!file) {
             return res.status(400).json({
                 success: false,
-                message: "Please upload a timetable image",
+                message: "Please upload a timetable PDF",
             });
         }
 
-        console.log("Processing timetable image with AI...");
+        console.log("Processing timetable PDF with AI...");
         console.log("File info:", {
             name: file.originalname,
             size: file.size,
             type: file.mimetype,
         });
 
-        // Use enhanced AI parsing
-        let timetableData;
+        // Use AI parsing
+        let timetablesArray;
         try {
-
-            timetableData = await extractTimetableData(file.buffer);
-            console.log(timetableData);
-            console.log("AI parsing successful");
-
+            timetablesArray = await extractTimetableData(file.buffer);
+            console.log("Extracted timetables count:", timetablesArray.length);
         } catch (aiError) {
             console.error("AI parsing failed", aiError);
-
             return res.status(500).json({
                 success: false,
-                message: aiError,
-                data: {}
-            })
+                message: "AI parsing failed",
+                error: aiError.message,
+            });
         }
 
-        // Save to database with enhanced structure
-        const error = await insertTimetableToDB(timetableData);
-
-        if (error) {
-            console.error("Database save error:", error);
+        // Save all extracted timetables to DB
+        const dbError = await insertMultipleTimetablesToDB(timetablesArray);
+        if (dbError) {
+            console.error("Database save error:", dbError);
+            return res.status(500).json({
+                success: false,
+                message: "Failed to save timetables to DB",
+                error: dbError.message,
+            });
         }
 
         res.status(200).json({
             success: true,
-            message: "Timetable uploaded and parsed successfully",
+            message: "Timetables uploaded and parsed successfully",
             data: {
-                timetable: timetableData,
-                summary: {
-                    semester: timetableData.semester,
-                    course: timetableData.course,
-                    totalPeriods: timetableData.metadata?.totalPeriods || 0,
-                    parsingMethod:
-                        timetableData.metadata?.parsingMethod || "unknown",
-                },
+                totalTimetables: timetablesArray.length,
+                timetables: timetablesArray,
             },
         });
     } catch (error) {
@@ -69,6 +69,71 @@ async function uploadTimetable(req, res) {
     }
 }
 
+async function uploadCalendar(req, res) {
+    try {
+        const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({
+                success: false,
+                message: "Please upload a calendar PDF",
+            });
+        }
+
+        console.log("Processing calendar PDF with AI...");
+        console.log("File info:", {
+            name: file.originalname,
+            size: file.size,
+            type: file.mimetype,
+        });
+
+        // Use AI parsing
+        let calendarArray;
+        try {
+            calendarArray = await extractCalendarData(file.buffer);
+            console.log(
+                "Extracted calendar count:",
+                calendarArray.length
+            );
+        } catch (aiError) {
+            console.error("AI parsing failed", aiError);
+            return res.status(500).json({
+                success: false,
+                message: "AI parsing failed",
+                error: aiError.message,
+            });
+        }
+
+        // Save all extracted timetables to DB
+        const dbError = await insertCalendarToDB(calendarArray);
+        if (dbError) {
+            console.error("Database save error:", dbError);
+            return res.status(500).json({
+                success: false,
+                message: "Failed to save calendar to DB",
+                error: dbError.message,
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Calendar uploaded and parsed successfully",
+            data: {
+                totalEvents: calendarArray.length,
+                calendar: calendarArray,
+            },
+        });
+    } catch (error) {
+        console.error("Calendar upload error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to process calendar",
+            error: error.message,
+        });
+    }
+}
+
 module.exports = {
     uploadTimetable,
+    uploadCalendar
 };
