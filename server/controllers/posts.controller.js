@@ -1,6 +1,6 @@
 const supabase = require("../db/conn");
 const path = require("path");
-const { moderateText } = require("../services/contentModeration");
+const { moderateText,moderateImage } = require("../services/contentModeration");
 
 // Handler for uploading a post with text and image
 async function uploadPost(req, res) {
@@ -55,6 +55,30 @@ async function uploadPost(req, res) {
         // Step 3: Upload images to Supabase Storage
         if (files && files.length > 0) {
             for (const file of files) {
+                // Run image moderation first
+                try {
+                    const moderationResult = await moderateImage(file.buffer);
+                    console.log("Image moderation result:", moderationResult);
+
+                    const { categoriesAnalysis } = moderationResult;
+                    const SEVERITY_THRESHOLD = 2;
+
+                    if (categoriesAnalysis) {
+                        for (const category of categoriesAnalysis) {
+                            if (category.severity >= SEVERITY_THRESHOLD) {
+                                return res.status(400).json({
+                                    success: false,
+                                    message: `Image violates community guidelines: ${category.category}`,
+                                    category: category.category,
+                                    severity: category.severity,
+                                });
+                            }
+                        }
+                    }
+                } catch (moderationError) {
+                    console.error("Image moderation failed:", moderationError);
+                    // You can choose whether to block the post or skip moderation errors
+                }
                 const fileExt = path.extname(file.originalname);
                 const fileName = `${Date.now()}-${Math.random()
                     .toString(36)

@@ -23,13 +23,34 @@ async function moderateText(text) {
             throw new Error(`Unexpected response: ${result.status}`);
         }
         
-        return await result.body;
+        return result.body;
     } catch (error) {
         console.error("Content moderation error:", error);
         throw error;
     }
 }
+async function moderateImage(imageBuffer) {
+  try {
+    const base64Image = imageBuffer.toString("base64");
+
+    const analyzeImageOption = { image: { content: base64Image } };
+    const analyzeImageParameters = { body: analyzeImageOption };
+
+    const result = await client.path("/image:analyze").post(analyzeImageParameters);
+
+    if (isUnexpected(result)) {
+      throw new Error(`Unexpected response: ${result.status}`);
+    }
+
+    return result.body;
+
+  } catch (error) {
+    console.error("Content moderation error:", error);
+    throw error;
+  }
+}
 
 module.exports = {
-    moderateText
+    moderateText,
+    moderateImage
 }
