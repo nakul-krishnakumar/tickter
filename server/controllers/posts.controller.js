@@ -125,5 +125,36 @@ async function uploadPost(req, res) {
         });
     }
 }
+async function searchPosts(req, res) {
+    try {
+        const { q, page = 1, limit = 20 } = req.query;
 
-module.exports = { uploadPost };
+        if (!q) {
+            return res.status(400).json({ error: "Missing search query" });
+        }
+
+        const offset = (page - 1) * limit;
+
+        const { data, error } = await supabase
+            .from("posts")
+            .select("*")
+            .ilike("content", `%${q}%`)
+            .order("created_at", { ascending: false })
+            .range(offset, offset + limit - 1);
+
+        if (error) throw error;
+
+        return res.status(200).json({
+            results: data,
+            pagination: {
+                page: Number(page),
+                limit: Number(limit),
+            },
+        });
+    } catch (err) {
+        console.error("Search error:", err.message);
+        return res.status(500).json({ error: "Failed to search posts" });
+    }
+}
+
+module.exports = { uploadPost, searchPosts };
