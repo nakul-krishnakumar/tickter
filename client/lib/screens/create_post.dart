@@ -21,8 +21,7 @@ class _CreatePostState extends State<CreatePost> {
 
     if (status.isGranted) {
       final picker = ImagePicker();
-      final XFile? imageFile =
-      await picker.pickImage(source: ImageSource.gallery);
+      final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
       if (imageFile != null) {
         setState(() {
           _selectedImage = File(imageFile.path);
@@ -30,8 +29,8 @@ class _CreatePostState extends State<CreatePost> {
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Library permission required to select an image')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Library permission required to select an image')));
       }
     }
   }
@@ -94,23 +93,31 @@ class _CreatePostState extends State<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
+    // Scaffold provides the basic Material Design visual layout structure.
     return Scaffold(
+      // AppBar is the top bar of the screen.
       appBar: AppBar(
         title: const Text('Create New Post'),
+        // 'actions' are widgets displayed after the title. Here we have the 'Post' button.
         actions: [
           TextButton(
+            // The button is disabled while loading to prevent multiple submissions.
             onPressed: isLoading ? null : _createPost,
+            // Show a loading circle if isLoading is true, otherwise show the 'Post' text.
             child: isLoading
                 ? const SizedBox(
-                width: 20, height: 20, child: CircularProgressIndicator())
+                    width: 20, height: 20, child: CircularProgressIndicator())
                 : const Text('Post'),
           ),
         ],
       ),
+      // The body is the primary content of the Scaffold.
       body: Padding(
         padding: const EdgeInsets.all(16.0),
+        // A Column to arrange the UI elements vertically.
         child: Column(
           children: [
+            // An InkWell makes its child tappable. Tapping it will call _pickImage.
             InkWell(
               onTap: _pickImage,
               child: Container(
@@ -120,25 +127,27 @@ class _CreatePostState extends State<CreatePost> {
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(12),
                 ),
+                // This is a conditional UI (ternary operator).
+                // If an image is selected, show it. Otherwise, show an 'add photo' icon.
                 child: _selectedImage != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(_selectedImage!, fit: BoxFit.cover),
-                )
+                    ? ClipRRect( // ClipRRect ensures the image has the same rounded corners as the container.
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(_selectedImage!, fit: BoxFit.cover),
+                      )
                     : const Center(
-                  child: Icon(Icons.add_a_photo,
-                      size: 50, color: Colors.grey),
-                ),
+                        child: Icon(Icons.add_a_photo, size: 50, color: Colors.grey),
+                      ),
               ),
             ),
             const SizedBox(height: 16),
+            // A TextFormField for multi-line text input for the caption.
             TextFormField(
               controller: _captionController,
               decoration: const InputDecoration(
                 hintText: 'Write a caption...',
                 border: OutlineInputBorder(),
               ),
-              maxLines: 5,
+              maxLines: 5, // Allows the text field to expand up to 5 lines.
             ),
           ],
         ),

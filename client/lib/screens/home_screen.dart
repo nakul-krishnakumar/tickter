@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'create_post.dart';
-import 'calendar_screen_student.dart';
+import 'calendar_screen_student.dart'; // Keep this import
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( // Keep the AppBar
         title: const Text('Home Feed'),
         actions: [
           IconButton(
@@ -73,17 +73,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(child: Text('Error: $_error'))
-          : RefreshIndicator(
-        onRefresh: _handleRefresh, // Link to the refresh function
-        child: ListView.builder(
-          itemCount: _posts?.length ?? 0,
-          itemBuilder: (context, index) {
-            final post = _posts![index];
-            return PostCard(post: post);
-          },
-        ),
-      ),
+              ? Center(child: Text('Error: $_error'))
+              : RefreshIndicator(
+                  onRefresh: _handleRefresh, // Link to the refresh function
+                  child: ListView.builder(
+                    itemCount: _posts?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final post = _posts![index];
+                      return PostCard(post: post);
+                    },
+                  ),
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

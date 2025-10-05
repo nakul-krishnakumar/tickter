@@ -17,10 +17,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signIn() async {
     try {
+      // Sign in the user with email and password
       await Supabase.instance.client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      // If the widget is still in the tree, navigate to the home screen
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -28,11 +31,12 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (error) {
+      // If sign-in fails, show an error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Sign in failed : ${error.toString()}'),
-            backgroundColor: Colors.red,
+            content: Text('Sign in failed: ${error.toString()}'),
+            backgroundColor: Colors.redAccent,
           ),
         );
       }
@@ -41,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    // Clean up the controllers when the widget is disposed
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -52,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: const Color(0xFFF5F5F5),
       body: SingleChildScrollView(
         child: Container(
+          // Ensure the container takes up at least the screen height
           height: MediaQuery.of(context).size.height,
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Padding(
@@ -59,11 +65,14 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // App Icon
                 SizedBox(
                   height: 100,
                   child: Image.asset('assets/images/login_icon.png'),
                 ),
                 const SizedBox(height: 24),
+
+                // White card for login form
                 Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
@@ -79,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // Email Text Field
                       TextFormField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -89,6 +99,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16.0),
+
+                      // Password Text Field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -99,6 +111,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 32.0),
+
+                      // Login Button
                       InkWell(
                         onTap: _signIn,
                         customBorder: const CircleBorder(),
@@ -108,7 +122,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      // VVVV  THIS IS THE CORRECTLY PLACED WIDGET  VVVV
+
+                      // Sign up options
                       Align(
                         alignment: Alignment.centerRight,
                         child: Column(
@@ -148,7 +163,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       )
-                      // ^^^^  THIS IS THE CORRECTLY PLACED WIDGET  ^^^^
                     ],
                   ),
                 ),
