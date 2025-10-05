@@ -11,35 +11,33 @@ class CreatePost extends StatefulWidget {
   State<CreatePost> createState() => _CreatePostState();
 }
 
-class _CreatePostState extends State<CreatePost>{
+class _CreatePostState extends State<CreatePost> {
   final _captionController = TextEditingController();
   File? _selectedImage;
   bool isLoading = false;
 
-  Future<void> _pickImage() async{
+  Future<void> _pickImage() async {
     final status = await Permission.photos.request();
 
-    if(status.isGranted){
+    if (status.isGranted) {
       final picker = ImagePicker();
       final XFile? imageFile = await picker.pickImage(source: ImageSource.gallery);
-      if(imageFile != null){
-        setState((){
+      if (imageFile != null) {
+        setState(() {
           _selectedImage = File(imageFile.path);
-        }
-        );
+        });
       }
-    }else{
-      if(mounted){
+    } else {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Library permission required to select an image'))
-        );
+            const SnackBar(content: Text('Library permission required to select an image')));
       }
     }
   }
 
-  Future<void> _createPost() async{
+  Future<void> _createPost() async {
     final caption = _captionController.text.trim();
-    if(caption.isEmpty && _selectedImage == null){
+    if (caption.isEmpty && _selectedImage == null) {
       return;
     }
     setState(() {
@@ -49,9 +47,7 @@ class _CreatePostState extends State<CreatePost>{
       String? imageUrl;
 
       if (_selectedImage != null) {
-        final fileName = '${DateTime
-            .now()
-            .millisecondsSinceEpoch}.png';
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
         await Supabase.instance.client.storage
             .from('posts_media')
             .upload(fileName, _selectedImage!);
@@ -67,30 +63,34 @@ class _CreatePostState extends State<CreatePost>{
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post created succesfully')),
-
+          const SnackBar(content: Text('Post created successfully')),
         );
         Navigator.pop(context);
       }
-    }catch(e){
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error Creating Post: $e'),
-              backgroundColor: Colors.red,
-            ),
+          SnackBar(
+            content: Text('Error Creating Post: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
-
-
-    setState((){
-      isLoading = false;
-    });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
+
   @override
-  void dispose(){
+  void dispose() {
     _captionController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     // Scaffold provides the basic Material Design visual layout structure.
@@ -103,10 +103,10 @@ class _CreatePostState extends State<CreatePost>{
           TextButton(
             // The button is disabled while loading to prevent multiple submissions.
             onPressed: isLoading ? null : _createPost,
-            // Show a loading circle if _isLoading is true, otherwise show the 'Post' text.
+            // Show a loading circle if isLoading is true, otherwise show the 'Post' text.
             child: isLoading
                 ? const SizedBox(
-                width: 20, height: 20, child: CircularProgressIndicator())
+                    width: 20, height: 20, child: CircularProgressIndicator())
                 : const Text('Post'),
           ),
         ],
@@ -131,12 +131,12 @@ class _CreatePostState extends State<CreatePost>{
                 // If an image is selected, show it. Otherwise, show an 'add photo' icon.
                 child: _selectedImage != null
                     ? ClipRRect( // ClipRRect ensures the image has the same rounded corners as the container.
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(_selectedImage!, fit: BoxFit.cover),
-                )
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(_selectedImage!, fit: BoxFit.cover),
+                      )
                     : const Center(
-                  child: Icon(Icons.add_a_photo, size: 50, color: Colors.grey),
-                ),
+                        child: Icon(Icons.add_a_photo, size: 50, color: Colors.grey),
+                      ),
               ),
             ),
             const SizedBox(height: 16),

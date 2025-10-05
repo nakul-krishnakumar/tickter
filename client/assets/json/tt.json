@@ -1,0 +1,403 @@
+{
+    "semester": 5,
+    "course": "Computer Science And Engineering",
+    "batch": "Batch-I",
+    "academicYear": "2025",
+    "timetable": [
+        {
+            "day": "Monday",
+            "periods": [
+                {
+                    "startTime": "09:00",
+                    "endTime": "09:55",
+                    "subject": {
+                        "code": "IHS313",
+                        "name": "Operations & Supply Chain Management",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Mathew C. D"
+                },
+                {
+                    "startTime": "10:00",
+                    "endTime": "10:55",
+                    "subject": {
+                        "code": "CSE312",
+                        "name": "Software Architecture: Principles And Architecture",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Athira B"
+                },
+                {
+                    "startTime": "11:05",
+                    "endTime": "12:00",
+                    "subject": {
+                        "code": "IEG311",
+                        "name": "Digital Signal Processing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Della Thomas"
+                },
+                {
+                    "startTime": "12:05",
+                    "endTime": "13:00",
+                    "subject": {
+                        "code": "CSE311",
+                        "name": "Artificial Intelligence",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Victer Paul"
+                },
+                {
+                    "startTime": "14:00",
+                    "endTime": "14:55",
+                    "subject": {
+                        "code": "IEG311",
+                        "name": "Digital Signal Processing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Della Thomas"
+                },
+                {
+                    "startTime": "15:00",
+                    "endTime": "15:55",
+                    "subject": {
+                        "code": "CSE312 LAB",
+                        "name": "Software Architecture: Principles And Architecture",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Athira B"
+                },
+                {
+                    "startTime": "16:00",
+                    "endTime": "16:55",
+                    "subject": {
+                        "code": "CSE312 LAB",
+                        "name": "Software Architecture: Principles And Architecture",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Athira B"
+                },
+                {
+                    "startTime": "17:00",
+                    "endTime": "18:30",
+                    "subject": {
+                        "code": "",
+                        "name": "Coding Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                }
+            ]
+        },
+        {
+            "day": "Tuesday",
+            "periods": [
+                {
+                    "startTime": "09:00",
+                    "endTime": "09:55",
+                    "subject": {
+                        "code": "CSE312",
+                        "name": "Software Architecture: Principles And Architecture",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Athira B"
+                },
+                {
+                    "startTime": "10:00",
+                    "endTime": "10:55",
+                    "subject": {
+                        "code": "CSE311",
+                        "name": "Artificial Intelligence",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Victer Paul"
+                },
+                {
+                    "startTime": "11:05",
+                    "endTime": "12:00",
+                    "subject": {
+                        "code": "CSS311",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "12:05",
+                    "endTime": "13:00",
+                    "subject": {
+                        "code": "IHS311",
+                        "name": "Human Resource Management",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Pradeep S"
+                },
+                {
+                    "startTime": "14:00",
+                    "endTime": "14:55",
+                    "subject": {
+                        "code": "CSE311 LAB",
+                        "name": "Artificial Intelligence",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Victer Paul"
+                },
+                {
+                    "startTime": "15:00",
+                    "endTime": "15:55",
+                    "subject": {
+                        "code": "CSE311 LAB",
+                        "name": "Artificial Intelligence",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Victer Paul"
+                },
+                {
+                    "startTime": "16:00",
+                    "endTime": "16:55",
+                    "subject": {
+                        "code": "CSE312",
+                        "name": "Software Architecture: Principles And Architecture",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Athira B"
+                },
+                {
+                    "startTime": "17:00",
+                    "endTime": "18:30",
+                    "subject": {
+                        "code": "",
+                        "name": "Coding Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                }
+            ]
+        },
+        {
+            "day": "Wednesday",
+            "periods": [
+                {
+                    "startTime": "09:00",
+                    "endTime": "09:55",
+                    "subject": {
+                        "code": "IHS312",
+                        "name": "Financial Management & Accounting",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Raghunadhan T"
+                },
+                {
+                    "startTime": "10:00",
+                    "endTime": "10:55",
+                    "subject": {
+                        "code": "",
+                        "name": "Interaction With Faculty Advisor",
+                        "type": "Activity"
+                    },
+                    "faculty": "Faculty Advisor"
+                },
+                {
+                    "startTime": "12:05",
+                    "endTime": "13:00",
+                    "subject": {
+                        "code": "IEG311",
+                        "name": "Digital Signal Processing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Della Thomas"
+                },
+                {
+                    "startTime": "14:00",
+                    "endTime": "14:55",
+                    "subject": {
+                        "code": "IMA311",
+                        "name": "Soft Computing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Lidiya Lily Thampi"
+                },
+                {
+                    "startTime": "15:00",
+                    "endTime": "15:55",
+                    "subject": {
+                        "code": "CSS311 LAB Set I",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "16:00",
+                    "endTime": "16:55",
+                    "subject": {
+                        "code": "CSS311 LAB Set I",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "17:00",
+                    "endTime": "18:30",
+                    "subject": {
+                        "code": "",
+                        "name": "Coding Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                }
+            ]
+        },
+        {
+            "day": "Thursday",
+            "periods": [
+                {
+                    "startTime": "10:00",
+                    "endTime": "10:55",
+                    "subject": {
+                        "code": "CSE311",
+                        "name": "Artificial Intelligence",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Victer Paul"
+                },
+                {
+                    "startTime": "11:05",
+                    "endTime": "12:00",
+                    "subject": {
+                        "code": "IEG311 LAB",
+                        "name": "Digital Signal Processing",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Della Thomas"
+                },
+                {
+                    "startTime": "12:05",
+                    "endTime": "13:00",
+                    "subject": {
+                        "code": "IEG311 LAB",
+                        "name": "Digital Signal Processing",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Della Thomas"
+                },
+                {
+                    "startTime": "14:00",
+                    "endTime": "14:55",
+                    "subject": {
+                        "code": "CSS311 LAB Set II",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "15:00",
+                    "endTime": "15:55",
+                    "subject": {
+                        "code": "CSS311 LAB Set II",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Lab"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "16:00",
+                    "endTime": "16:55",
+                    "subject": {
+                        "code": "IMA311",
+                        "name": "Soft Computing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Lidiya Lily Thampi"
+                },
+                {
+                    "startTime": "17:00",
+                    "endTime": "18:30",
+                    "subject": {
+                        "code": "",
+                        "name": "Coding Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                }
+            ]
+        },
+        {
+            "day": "Friday",
+            "periods": [
+                {
+                    "startTime": "09:00",
+                    "endTime": "09:55",
+                    "subject": {
+                        "code": "CSS311",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "11:05",
+                    "endTime": "12:00",
+                    "subject": {
+                        "code": "CSS311",
+                        "name": "Parallel And Distributed Computing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Balasubramaniam P"
+                },
+                {
+                    "startTime": "12:05",
+                    "endTime": "13:00",
+                    "subject": {
+                        "code": "IMA311",
+                        "name": "Soft Computing",
+                        "type": "Theory"
+                    },
+                    "faculty": "Dr. Lidiya Lily Thampi"
+                },
+                {
+                    "startTime": "14:00",
+                    "endTime": "14:55",
+                    "subject": {
+                        "code": "",
+                        "name": "Technical Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                },
+                {
+                    "startTime": "15:00",
+                    "endTime": "15:55",
+                    "subject": {
+                        "code": "",
+                        "name": "Technical Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                },
+                {
+                    "startTime": "16:00",
+                    "endTime": "16:55",
+                    "subject": {
+                        "code": "",
+                        "name": "Technical Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                },
+                {
+                    "startTime": "17:00",
+                    "endTime": "18:30",
+                    "subject": {
+                        "code": "",
+                        "name": "Coding Club Activities",
+                        "type": "Activity"
+                    },
+                    "faculty": ""
+                }
+            ]
+        }
+    ]
+}
