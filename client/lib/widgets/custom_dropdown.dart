@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomDropdown extends StatelessWidget {
   final String hintText;
   final List<String> items;
+  final ValueChanged<String?>? onChanged; // 1. Add the onChanged variable
 
   const CustomDropdown({
     super.key,
     required this.hintText,
     required this.items,
+    this.onChanged, // 2. Add it to the constructor
   });
 
   @override
@@ -36,7 +38,7 @@ class CustomDropdown extends StatelessWidget {
             child: Text(value),
           );
         }).toList(),
-        onChanged: (String? newValue) {},
+        onChanged: onChanged, // 3. Use the onChanged function here
       ),
     );
   }

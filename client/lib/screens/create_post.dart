@@ -1,0 +1,148 @@
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+class CreatePost extends StatefulWidget {
+  const CreatePost({super.key});
+
+  @override
+  State<CreatePost> createState() => _CreatePostState();
+}
+
+class _CreatePostState extends State<CreatePost> {
+  final _captionController = TextEditingController();
+  File? _selectedImage;
+  bool isLoading = false;
+
+  Future<void> _pickImage() async {
+    final status = await Permission.photos.request();
+
+    if (status.isGranted) {
+      final picker = ImagePicker();
+      final XFile? imageFile =
+      await picker.pickImage(source: ImageSource.gallery);
+      if (imageFile != null) {
+        setState(() {
+          _selectedImage = File(imageFile.path);
+        });
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Library permission required to select an image')));
+      }
+    }
+  }
+
+  Future<void> _createPost() async {
+    final caption = _captionController.text.trim();
+    if (caption.isEmpty && _selectedImage == null) {
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      String? imageUrl;
+
+      if (_selectedImage != null) {
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
+        await Supabase.instance.client.storage
+            .from('posts_media')
+            .upload(fileName, _selectedImage!);
+
+        imageUrl = Supabase.instance.client.storage
+            .from('posts_media')
+            .getPublicUrl(fileName);
+      }
+      await Supabase.instance.client.from('posts').insert({
+        'user_id': Supabase.instance.client.auth.currentUser!.id,
+        'content': caption.isNotEmpty ? caption : null,
+        'photo_url': imageUrl,
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post created successfully')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error Creating Post: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _captionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create New Post'),
+        actions: [
+          TextButton(
+            onPressed: isLoading ? null : _createPost,
+            child: isLoading
+                ? const SizedBox(
+                width: 20, height: 20, child: CircularProgressIndicator())
+                : const Text('Post'),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: _pickImage,
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _selectedImage != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(_selectedImage!, fit: BoxFit.cover),
+                )
+                    : const Center(
+                  child: Icon(Icons.add_a_photo,
+                      size: 50, color: Colors.grey),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _captionController,
+              decoration: const InputDecoration(
+                hintText: 'Write a caption...',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 5,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

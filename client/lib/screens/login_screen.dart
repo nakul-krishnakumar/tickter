@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                      const Student_SignUpScreen()),
+                                      const StudentSignUpScreen()),
                                 );
                               },
                               child: const Text('Sign up as student'),
