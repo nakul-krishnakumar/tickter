@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .order('created_at', ascending: false); // Show newest posts first
 
       setState(() {
-        _posts = response as List<Map<String, dynamic>>;
+        _posts = response;
         _isLoading = false;
         _error = null;
       });
