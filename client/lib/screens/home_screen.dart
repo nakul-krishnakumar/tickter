@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timeago/timeago.dart' as timeago; // For formatting timestamps
+
 import 'comments_screen.dart';
 import 'create_post.dart';
 import 'calendar_screen_student.dart';
@@ -28,18 +30,22 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final response = await Supabase.instance.client
           .from('posts')
-          .select('*, profiles(first_name, last_name)') // Also fetch author name
+          .select('*, profiles(first_name, last_name)')
           .order('created_at', ascending: false);
-      setState(() {
-        _posts = response as List<Map<String, dynamic>>;
-        _isLoading = false;
-        _error = null;
-      });
+      if (mounted) {
+        setState(() {
+          _posts = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+          _error = null;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _error = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = e.toString();
+        });
+      }
     }
   }
 
@@ -47,87 +53,66 @@ class _HomeScreenState extends State<HomeScreen> {
     await _fetchPosts();
   }
 
-  /// Handles the sign out logic
   Future<void> _signOut() async {
     try {
       await Supabase.instance.client.auth.signOut();
     } catch (error) {
-      // Handle potential errors, e.g., show a snackbar
+      // Optionally show an error message
     } finally {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false, // This removes all previous routes
+              (route) => false,
         );
       }
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Feed'),
-        // Add the three icon buttons to the actions list
+        // A more modern, Twitter-like AppBar
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        title: const Text(
+          'Home',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
         actions: [
-          // 1. Logout Button
+          IconButton(
+            icon: const Icon(Icons.calendar_today_outlined),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarScreen())),
+            tooltip: 'Calendar',
+          ),
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
+            tooltip: 'Profile',
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _signOut,
             tooltip: 'Logout',
           ),
-          // 2. Calendar Button
-          IconButton(
-            icon: const Icon(Icons.calendar_today_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CalendarScreen()),
-              );
-            },
-            tooltip: 'Calendar',
-          ),
-          // 3. Profile Button
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-            tooltip: 'Profile',
-          ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(child: Text('Error: $_error'))
-          : RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: ListView.builder(
-          itemCount: _posts?.length ?? 0,
-          itemBuilder: (context, index) {
-            final post = _posts![index];
-            return PostCard(post: post);
-          },
-        ),
-      ),
+      body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const CreatePost()),
-          ).then((_) {
-            _fetchPosts();
-          });
+          ).then((_) => _fetchPosts());
         },
         backgroundColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
+          // Restoring your original create icon for the FAB
           child: Image.asset(
             'assets/images/Create_icon.png',
           ),
@@ -135,9 +120,33 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return Center(child: Text('Error: $_error'));
+    }
+    if (_posts == null || _posts!.isEmpty) {
+      return const Center(child: Text('No posts yet. Be the first to share!'));
+    }
+
+    return RefreshIndicator(
+      onRefresh: _handleRefresh,
+      child: ListView.separated(
+        itemCount: _posts!.length,
+        itemBuilder: (context, index) {
+          final post = _posts![index];
+          return PostCard(post: post);
+        },
+        // Adds a clean divider between posts
+        separatorBuilder: (context, index) => Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+      ),
+    );
+  }
 }
 
-/// PostCard is now a StatefulWidget to manage its own state (likes).
 class PostCard extends StatefulWidget {
   final Map<String, dynamic> post;
   const PostCard({super.key, required this.post});
@@ -156,132 +165,180 @@ class _PostCardState extends State<PostCard> {
     _fetchLikeStatus();
   }
 
-  /// Fetches the like count and checks if the current user has liked this post.
   Future<void> _fetchLikeStatus() async {
+    if (!mounted) return;
     final supabase = Supabase.instance.client;
-    final userId = supabase.auth.currentUser!.id;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return;
+
     final postId = widget.post['id'];
 
-    final count = await supabase
-        .from('likes')
-        .count(CountOption.exact)
-        .eq('post_id', postId);
+    try {
+      final countRes = await supabase.from('likes').count(CountOption.exact).eq('post_id', postId);
+      final userLikeRes = await supabase.from('likes').select('id').eq('post_id', postId).eq('user_id', userId).limit(1);
 
-    final userLikeResponse = await supabase
-        .from('likes')
-        .select('id')
-        .eq('post_id', postId)
-        .eq('user_id', userId)
-        .limit(1);
-
-    if (mounted) {
-      setState(() {
-        _likeCount = count;
-        _isLiked = userLikeResponse.isNotEmpty;
-      });
+      if (mounted) {
+        setState(() {
+          _likeCount = countRes;
+          _isLiked = userLikeRes.isNotEmpty;
+        });
+      }
+    } catch (e) {
+      // Handle error, e.g., log it
     }
   }
 
-  /// Handles the like/unlike action when the button is tapped.
   Future<void> _toggleLike() async {
+    if (!mounted) return;
     final supabase = Supabase.instance.client;
-    final userId = supabase.auth.currentUser!.id;
+    final userId = supabase.auth.currentUser?.id;
+    if (userId == null) return;
+
     final postId = widget.post['id'];
 
-    if (_isLiked) {
-      await supabase.from('likes').delete().match({'post_id': postId, 'user_id': userId});
-      setState(() {
+    setState(() {
+      if (_isLiked) {
         _isLiked = false;
         _likeCount--;
-      });
-    } else {
-      await supabase.from('likes').insert({'post_id': postId, 'user_id': userId});
-      setState(() {
+        supabase.from('likes').delete().match({'post_id': postId, 'user_id': userId}).catchError((_) {
+          // Revert state on error
+          if (mounted) {
+            setState(() {
+              _isLiked = true;
+              _likeCount++;
+            });
+          }
+        });
+      } else {
         _isLiked = true;
         _likeCount++;
-      });
-    }
+        supabase.from('likes').insert({'post_id': postId, 'user_id': userId}).catchError((_) {
+          // Revert state on error
+          if (mounted) {
+            setState(() {
+              _isLiked = false;
+              _likeCount--;
+            });
+          }
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final profile = widget.post['profiles'];
+    final firstName = profile?['first_name'] ?? '';
+    final lastName = profile?['last_name'] ?? '';
+    final authorName = '$firstName $lastName'.trim().isEmpty ? 'Anonymous' : '$firstName $lastName'.trim();
+
+    final createdAt = DateTime.parse(widget.post['created_at']);
+    final timeAgo = timeago.format(createdAt);
+
     final String? content = widget.post['content'];
     final String? photoUrl = widget.post['photo_url'];
     final String postId = widget.post['id'].toString();
 
-    final profile = widget.post['profiles'];
-    final firstName = profile?['first_name'] ?? '';
-    final lastName = profile?['last_name'] ?? '';
-    final authorName = '$firstName $lastName'.trim();
-
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(12.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-            child: Text(
-              authorName.isNotEmpty ? authorName : 'Anonymous',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+          // User Avatar
+          const CircleAvatar(
+            radius: 24,
+            backgroundColor: Colors.grey,
+            child: Icon(Icons.person, color: Colors.white),
           ),
-          if (photoUrl != null)
-            Image.network(
-              photoUrl,
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return const Center(heightFactor: 4, child: CircularProgressIndicator());
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(heightFactor: 4, child: Icon(Icons.broken_image, color: Colors.grey));
-              },
-            ),
-          if (content != null)
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text(content),
-            ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(width: 12),
+          // Post Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        _isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: _isLiked ? Colors.red : Colors.grey,
-                      ),
-                      onPressed: _toggleLike,
-                    ),
-                    Text('$_likeCount'),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Icons.comment_outlined, color: Colors.grey),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CommentsScreen(postId: postId),
-                      ),
-                    );
-                  },
-                ),
+                _buildPostHeader(authorName, timeAgo),
+                if (content != null && content.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+                    child: Text(content, style: const TextStyle(fontSize: 15, height: 1.3)),
+                  ),
+                if (photoUrl != null) _buildPostImage(photoUrl),
+                _buildActionButtons(postId),
               ],
             ),
-          )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostHeader(String authorName, String timeAgo) {
+    return Row(
+      children: [
+        Text(authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(width: 8),
+        Text(timeAgo, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+      ],
+    );
+  }
+
+  Widget _buildPostImage(String photoUrl) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: Image.network(
+          photoUrl,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, progress) =>
+          progress == null ? child : const Center(child: CircularProgressIndicator()),
+          errorBuilder: (context, error, stack) =>
+          const Icon(Icons.broken_image, color: Colors.grey, size: 40),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(String postId) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildActionButton(
+            icon: Icons.comment_outlined,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CommentsScreen(postId: postId)),
+            ),
+          ),
+          _buildActionButton(
+            icon: _isLiked ? Icons.favorite : Icons.favorite_border,
+            text: _likeCount > 0 ? '$_likeCount' : '',
+            color: _isLiked ? Colors.red : Colors.grey.shade600,
+            onPressed: _toggleLike,
+          ),
+          _buildActionButton(icon: Icons.share_outlined, onPressed: () {}), // Placeholder for share
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({required IconData icon, String text = '', Color? color, required VoidCallback onPressed}) {
+    return InkWell(
+      onTap: onPressed,
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: color ?? Colors.grey.shade600),
+          if (text.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 6.0),
+              child: Text(text, style: TextStyle(color: color ?? Colors.grey.shade600, fontSize: 14)),
+            ),
         ],
       ),
     );
   }
 }
-
