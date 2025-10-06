@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tickter/screens/signup_screen_professor.dart';
-import 'signup_screen_student.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../services/auth_service.dart';
 import 'home_screen.dart';
+import 'signup_screen_student.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,11 +18,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _signIn() async {
     try {
-      // Sign in the user with email and password
-      await Supabase.instance.client.auth.signInWithPassword(
+      print(
+        'LOGIN: Attempting to sign in with email: ${_emailController.text.trim()}',
+      );
+
+      // Use AuthService to sign in
+      final authService = AuthService();
+      final userProfile = await authService.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      print('🎉 ===== LOGIN SUCCESSFUL! =====');
+      print('👤 USER PROFILE: $userProfile');
+      print('🎭 USER ROLE: ${userProfile?.role.name.toUpperCase()}');
+      print('👑 IS ADMIN: ${userProfile?.isAdmin}');
+      print('🏠 NAVIGATING TO HOME SCREEN...');
+      print('================================');
 
       // If the widget is still in the tree, navigate to the home screen
       if (mounted) {
@@ -31,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (error) {
+      print('LOGIN: Sign in failed with error: $error');
       // If sign-in fails, show an error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,15 +90,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        )
-                      ]),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -139,8 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                      const StudentSignUpScreen()),
+                                    builder: (context) =>
+                                        const StudentSignUpScreen(),
+                                  ),
                                 );
                               },
                               child: const Text('Sign up as student'),
@@ -154,15 +170,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProfessorSignUpScreen()),
+                                    builder: (context) =>
+                                        ProfessorSignUpScreen(),
+                                  ),
                                 );
                               },
                               child: const Text('Sign up as Professor/staff'),
-                            )
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

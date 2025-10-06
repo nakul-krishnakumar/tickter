@@ -25,7 +25,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
         .select('*, profiles(first_name, last_name)') // Join with profiles
         .eq('post_id', widget.postId)
         .order('created_at');
-    return response as List<Map<String, dynamic>>;
+    return response;
   }
 
   /// Adds error handling to the comment submission process.

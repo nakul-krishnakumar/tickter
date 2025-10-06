@@ -12,6 +12,27 @@ const app = express();
 const PORT = process.env.PORT || 8081;
 const HOST = process.env.HOST;
 
+// CORS middleware - Add this BEFORE other middlewares
+app.use((req, res, next) => {
+    // Allow requests from Flutter web app (typically runs on different port)
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+    );
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+
+    // Handle preflight requests
+    if (req.method === "OPTIONS") {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
 // Global Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
