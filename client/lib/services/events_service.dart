@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../models/event_model.dart';
 
 class EventsService {
@@ -37,7 +38,9 @@ class EventsService {
           .map((eventData) => Event.fromJson(eventData))
           .toList();
     } catch (error) {
-      throw Exception('Failed to fetch events for date range: ${error.toString()}');
+      throw Exception(
+        'Failed to fetch events for date range: ${error.toString()}',
+      );
     }
   }
 
@@ -58,27 +61,29 @@ class EventsService {
           .map((eventData) => Event.fromJson(eventData))
           .toList();
     } catch (error) {
-      throw Exception('Failed to fetch user-specific events: ${error.toString()}');
+      throw Exception(
+        'Failed to fetch user-specific events: ${error.toString()}',
+      );
     }
   }
 
   /// Group events by date
   static Map<DateTime, List<Event>> groupEventsByDate(List<Event> events) {
     final Map<DateTime, List<Event>> groupedEvents = {};
-    
+
     for (final event in events) {
       final eventDate = DateTime.utc(
         event.date.year,
         event.date.month,
         event.date.day,
       );
-      
+
       if (groupedEvents[eventDate] == null) {
         groupedEvents[eventDate] = [];
       }
       groupedEvents[eventDate]!.add(event);
     }
-    
+
     return groupedEvents;
   }
 }

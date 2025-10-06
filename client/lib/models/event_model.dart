@@ -39,10 +39,10 @@ class Event {
       batch: (json['batch'] as List<dynamic>).cast<int>(),
       semester: (json['semester'] as List<dynamic>).cast<int>(),
       type: json['type'] as String,
-      createdAt: json['created_at'] != null 
+      createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
-      updatedAt: json['updated_at'] != null 
+      updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
     );
@@ -71,7 +71,7 @@ class Event {
     if (startTime != null && endTime != null) {
       timeStr = ' ($startTime - $endTime)';
     } else if (startTime != null) {
-      timeStr = ' (${startTime})';
+      timeStr = ' ($startTime)';
     }
     return '$eventName$timeStr';
   }
