@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'comments_screen.dart'; // Import the new comments screen
+import 'comments_screen.dart';
 import 'create_post.dart';
 import 'calendar_screen_student.dart';
+import 'login_screen.dart'; // Import for logout navigation
+import 'profile_screen.dart'; // Import for profile navigation
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,24 +47,58 @@ class _HomeScreenState extends State<HomeScreen> {
     await _fetchPosts();
   }
 
+  /// Handles the sign out logic
+  Future<void> _signOut() async {
+    try {
+      await Supabase.instance.client.auth.signOut();
+    } catch (error) {
+      // Handle potential errors, e.g., show a snackbar
+    } finally {
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false, // This removes all previous routes
+        );
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Feed'),
+        // Add the three icon buttons to the actions list
         actions: [
+          // 1. Logout Button
           IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _signOut,
+            tooltip: 'Logout',
+          ),
+          // 2. Calendar Button
+          IconButton(
+            icon: const Icon(Icons.calendar_today_outlined),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CalendarScreen()),
               );
             },
-            icon: Image.asset(
-              'assets/images/calendar_icon.png',
-              width: 28,
-              height: 28,
-            ),
+            tooltip: 'Calendar',
+          ),
+          // 3. Profile Button
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+            tooltip: 'Profile',
           ),
         ],
       ),
@@ -126,13 +162,11 @@ class _PostCardState extends State<PostCard> {
     final userId = supabase.auth.currentUser!.id;
     final postId = widget.post['id'];
 
-    // Use the modern .count() method to get the total like count.
     final count = await supabase
         .from('likes')
         .count(CountOption.exact)
         .eq('post_id', postId);
 
-    // Check if the current user has a like record for this post.
     final userLikeResponse = await supabase
         .from('likes')
         .select('id')
@@ -155,14 +189,12 @@ class _PostCardState extends State<PostCard> {
     final postId = widget.post['id'];
 
     if (_isLiked) {
-      // If already liked, delete the like record.
       await supabase.from('likes').delete().match({'post_id': postId, 'user_id': userId});
       setState(() {
         _isLiked = false;
         _likeCount--;
       });
     } else {
-      // If not liked, insert a new like record.
       await supabase.from('likes').insert({'post_id': postId, 'user_id': userId});
       setState(() {
         _isLiked = true;
@@ -175,10 +207,8 @@ class _PostCardState extends State<PostCard> {
   Widget build(BuildContext context) {
     final String? content = widget.post['content'];
     final String? photoUrl = widget.post['photo_url'];
-    // **FIXED**: The postId is correctly identified as a String.
-    final String postId = widget.post['id'];
+    final String postId = widget.post['id'].toString();
 
-    // Safely get the author's name from the joined 'profiles' data.
     final profile = widget.post['profiles'];
     final firstName = profile?['first_name'] ?? '';
     final lastName = profile?['last_name'] ?? '';
@@ -192,7 +222,6 @@ class _PostCardState extends State<PostCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Author Name
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Text(
@@ -200,7 +229,6 @@ class _PostCardState extends State<PostCard> {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          // Conditionally display the image.
           if (photoUrl != null)
             Image.network(
               photoUrl,
@@ -215,13 +243,11 @@ class _PostCardState extends State<PostCard> {
                 return const Center(heightFactor: 4, child: Icon(Icons.broken_image, color: Colors.grey));
               },
             ),
-          // Conditionally display the content/caption.
           if (content != null)
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(content),
             ),
-          // Row for Like and Comment buttons.
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Row(
