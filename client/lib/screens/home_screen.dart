@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timeago/timeago.dart' as timeago; // For formatting timestamps
 
+import '../services/auth_service.dart';
+import 'calendar_screen_student.dart';
 import 'comments_screen.dart';
 import 'create_post.dart';
-import 'calendar_screen_student.dart';
 import 'login_screen.dart'; // Import for logout navigation
 import 'profile_screen.dart'; // Import for profile navigation
 
@@ -24,6 +25,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchPosts();
+
+    // Print current user role when HomeScreen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authService = AuthService();
+      final currentUser = authService.currentUser;
+      print('🏠 ===== HOME SCREEN LOADED =====');
+      print('👤 CURRENT USER: $currentUser');
+      print(
+        '🎭 USER ROLE: ${currentUser?.role.name.toUpperCase() ?? 'UNKNOWN'}',
+      );
+      print('👑 IS ADMIN: ${currentUser?.isAdmin}');
+      print('🔐 IS LOGGED IN: ${authService.isLoggedIn}');
+      print('===============================');
+    });
   }
 
   Future<void> _fetchPosts() async {
@@ -63,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false,
+          (route) => false,
         );
       }
     }
@@ -78,20 +93,23 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         title: const Text(
           'Home',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today_outlined),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CalendarScreen())),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CalendarScreen()),
+            ),
             tooltip: 'Calendar',
           ),
           IconButton(
             icon: const Icon(Icons.person_outline),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileScreen())),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            ),
             tooltip: 'Profile',
           ),
           IconButton(
@@ -113,9 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           // Restoring your original create icon for the FAB
-          child: Image.asset(
-            'assets/images/Create_icon.png',
-          ),
+          child: Image.asset('assets/images/Create_icon.png'),
         ),
       ),
     );
@@ -141,7 +157,8 @@ class _HomeScreenState extends State<HomeScreen> {
           return PostCard(post: post);
         },
         // Adds a clean divider between posts
-        separatorBuilder: (context, index) => Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+        separatorBuilder: (context, index) =>
+            Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
       ),
     );
   }
@@ -174,8 +191,16 @@ class _PostCardState extends State<PostCard> {
     final postId = widget.post['id'];
 
     try {
-      final countRes = await supabase.from('likes').count(CountOption.exact).eq('post_id', postId);
-      final userLikeRes = await supabase.from('likes').select('id').eq('post_id', postId).eq('user_id', userId).limit(1);
+      final countRes = await supabase
+          .from('likes')
+          .count(CountOption.exact)
+          .eq('post_id', postId);
+      final userLikeRes = await supabase
+          .from('likes')
+          .select('id')
+          .eq('post_id', postId)
+          .eq('user_id', userId)
+          .limit(1);
 
       if (mounted) {
         setState(() {
@@ -200,27 +225,34 @@ class _PostCardState extends State<PostCard> {
       if (_isLiked) {
         _isLiked = false;
         _likeCount--;
-        supabase.from('likes').delete().match({'post_id': postId, 'user_id': userId}).catchError((_) {
-          // Revert state on error
-          if (mounted) {
-            setState(() {
-              _isLiked = true;
-              _likeCount++;
+        supabase
+            .from('likes')
+            .delete()
+            .match({'post_id': postId, 'user_id': userId})
+            .catchError((_) {
+              // Revert state on error
+              if (mounted) {
+                setState(() {
+                  _isLiked = true;
+                  _likeCount++;
+                });
+              }
             });
-          }
-        });
       } else {
         _isLiked = true;
         _likeCount++;
-        supabase.from('likes').insert({'post_id': postId, 'user_id': userId}).catchError((_) {
-          // Revert state on error
-          if (mounted) {
-            setState(() {
-              _isLiked = false;
-              _likeCount--;
+        supabase
+            .from('likes')
+            .insert({'post_id': postId, 'user_id': userId})
+            .catchError((_) {
+              // Revert state on error
+              if (mounted) {
+                setState(() {
+                  _isLiked = false;
+                  _likeCount--;
+                });
+              }
             });
-          }
-        });
       }
     });
   }
@@ -230,7 +262,9 @@ class _PostCardState extends State<PostCard> {
     final profile = widget.post['profiles'];
     final firstName = profile?['first_name'] ?? '';
     final lastName = profile?['last_name'] ?? '';
-    final authorName = '$firstName $lastName'.trim().isEmpty ? 'Anonymous' : '$firstName $lastName'.trim();
+    final authorName = '$firstName $lastName'.trim().isEmpty
+        ? 'Anonymous'
+        : '$firstName $lastName'.trim();
 
     final createdAt = DateTime.parse(widget.post['created_at']);
     final timeAgo = timeago.format(createdAt);
@@ -261,7 +295,10 @@ class _PostCardState extends State<PostCard> {
                 if (content != null && content.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                    child: Text(content, style: const TextStyle(fontSize: 15, height: 1.3)),
+                    child: Text(
+                      content,
+                      style: const TextStyle(fontSize: 15, height: 1.3),
+                    ),
                   ),
                 if (photoUrl != null) _buildPostImage(photoUrl),
                 _buildActionButtons(postId),
@@ -276,9 +313,15 @@ class _PostCardState extends State<PostCard> {
   Widget _buildPostHeader(String authorName, String timeAgo) {
     return Row(
       children: [
-        Text(authorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(
+          authorName,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
         const SizedBox(width: 8),
-        Text(timeAgo, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+        Text(
+          timeAgo,
+          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+        ),
       ],
     );
   }
@@ -292,10 +335,11 @@ class _PostCardState extends State<PostCard> {
           photoUrl,
           width: double.infinity,
           fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) =>
-          progress == null ? child : const Center(child: CircularProgressIndicator()),
+          loadingBuilder: (context, child, progress) => progress == null
+              ? child
+              : const Center(child: CircularProgressIndicator()),
           errorBuilder: (context, error, stack) =>
-          const Icon(Icons.broken_image, color: Colors.grey, size: 40),
+              const Icon(Icons.broken_image, color: Colors.grey, size: 40),
         ),
       ),
     );
@@ -311,7 +355,9 @@ class _PostCardState extends State<PostCard> {
             icon: Icons.comment_outlined,
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CommentsScreen(postId: postId)),
+              MaterialPageRoute(
+                builder: (context) => CommentsScreen(postId: postId),
+              ),
             ),
           ),
           _buildActionButton(
@@ -320,13 +366,21 @@ class _PostCardState extends State<PostCard> {
             color: _isLiked ? Colors.red : Colors.grey.shade600,
             onPressed: _toggleLike,
           ),
-          _buildActionButton(icon: Icons.share_outlined, onPressed: () {}), // Placeholder for share
+          _buildActionButton(
+            icon: Icons.share_outlined,
+            onPressed: () {},
+          ), // Placeholder for share
         ],
       ),
     );
   }
 
-  Widget _buildActionButton({required IconData icon, String text = '', Color? color, required VoidCallback onPressed}) {
+  Widget _buildActionButton({
+    required IconData icon,
+    String text = '',
+    Color? color,
+    required VoidCallback onPressed,
+  }) {
     return InkWell(
       onTap: onPressed,
       child: Row(
@@ -335,7 +389,13 @@ class _PostCardState extends State<PostCard> {
           if (text.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(left: 6.0),
-              child: Text(text, style: TextStyle(color: color ?? Colors.grey.shade600, fontSize: 14)),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: color ?? Colors.grey.shade600,
+                  fontSize: 14,
+                ),
+              ),
             ),
         ],
       ),

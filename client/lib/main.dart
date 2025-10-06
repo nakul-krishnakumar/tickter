@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // 1. Import the dotenv package
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'screens/login_screen.dart';
+import 'services/auth_service.dart';
 
 // 2. Make the main function async to wait for files to load
 Future<void> main() async {
@@ -16,6 +18,11 @@ Future<void> main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+
+  // 6. Initialize AuthService
+  print('MAIN: Initializing AuthService...');
+  await AuthService().initialize();
+  print('MAIN: AuthService initialized successfully');
 
   runApp(const MyApp());
 }
