@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
-
-import 'screens/login_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // 1. Import the dotenv package
 import 'package:supabase_flutter/supabase_flutter.dart';
-Future<void> main() async{
+import 'screens/login_screen.dart';
+
+// 2. Make the main function async to wait for files to load
+Future<void> main() async {
+  // 3. Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 4. Load the environment variables from the .env file
+  await dotenv.load(fileName: ".env");
+
+  // 5. Initialize Supabase using the variables from dotenv
   await Supabase.initialize(
-    url: 'https://owqmxdgbcoqqzzasyiuh.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93cW14ZGdiY29xcXp6YXN5aXVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MTM4MDQsImV4cCI6MjA3MTA4OTgwNH0.W2wb3W6inND012yUzkp7wurMvELNkmrpXcX7rGgLW2A',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+
   runApp(const MyApp());
 }
-class MyApp extends StatelessWidget{
+
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context){
-    return MaterialApp(
+  Widget build(BuildContext context) {
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-
       home: LoginScreen(),
     );
   }
