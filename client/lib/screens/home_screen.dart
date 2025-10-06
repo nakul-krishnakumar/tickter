@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'comments_screen.dart'; // Import the new comments screen
 import 'create_post.dart';
-import 'calendar_screen_student.dart'; // Keep this import
+import 'calendar_screen_student.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,7 +12,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // A list to hold the posts and a boolean to track loading state.
   List<Map<String, dynamic>>? _posts;
   bool _isLoading = true;
   String? _error;
@@ -19,20 +19,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch the posts when the screen is first loaded.
     _fetchPosts();
   }
 
-  /// Fetches posts from the Supabase 'posts' table.
   Future<void> _fetchPosts() async {
     try {
       final response = await Supabase.instance.client
           .from('posts')
-          .select()
-          .order('created_at', ascending: false); // Show newest posts first
-
+          .select('*, profiles(first_name, last_name)') // Also fetch author name
+          .order('created_at', ascending: false);
       setState(() {
-        _posts = response;
+        _posts = response as List<Map<String, dynamic>>;
         _isLoading = false;
         _error = null;
       });
@@ -44,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Handles the pull-to-refresh action.
   Future<void> _handleRefresh() async {
     await _fetchPosts();
   }
@@ -52,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( // Keep the AppBar
+      appBar: AppBar(
         title: const Text('Home Feed'),
         actions: [
           IconButton(
@@ -63,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
             icon: Image.asset(
-              'assets/images/calendar_icon.png', // Replace with your image name
+              'assets/images/calendar_icon.png',
               width: 28,
               height: 28,
             ),
@@ -73,24 +69,23 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text('Error: $_error'))
-              : RefreshIndicator(
-                  onRefresh: _handleRefresh, // Link to the refresh function
-                  child: ListView.builder(
-                    itemCount: _posts?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final post = _posts![index];
-                      return PostCard(post: post);
-                    },
-                  ),
-                ),
+          ? Center(child: Text('Error: $_error'))
+          : RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: ListView.builder(
+          itemCount: _posts?.length ?? 0,
+          itemBuilder: (context, index) {
+            final post = _posts![index];
+            return PostCard(post: post);
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const CreatePost()),
           ).then((_) {
-            // Refresh the feed after a new post is created
             _fetchPosts();
           });
         },
@@ -106,15 +101,89 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// A custom widget to display a single post in a card format.
-class PostCard extends StatelessWidget {
+/// PostCard is now a StatefulWidget to manage its own state (likes).
+class PostCard extends StatefulWidget {
   final Map<String, dynamic> post;
   const PostCard({super.key, required this.post});
 
   @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool _isLiked = false;
+  int _likeCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLikeStatus();
+  }
+
+  /// Fetches the like count and checks if the current user has liked this post.
+  Future<void> _fetchLikeStatus() async {
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser!.id;
+    final postId = widget.post['id'];
+
+    // Use the modern .count() method to get the total like count.
+    final count = await supabase
+        .from('likes')
+        .count(CountOption.exact)
+        .eq('post_id', postId);
+
+    // Check if the current user has a like record for this post.
+    final userLikeResponse = await supabase
+        .from('likes')
+        .select('id')
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .limit(1);
+
+    if (mounted) {
+      setState(() {
+        _likeCount = count;
+        _isLiked = userLikeResponse.isNotEmpty;
+      });
+    }
+  }
+
+  /// Handles the like/unlike action when the button is tapped.
+  Future<void> _toggleLike() async {
+    final supabase = Supabase.instance.client;
+    final userId = supabase.auth.currentUser!.id;
+    final postId = widget.post['id'];
+
+    if (_isLiked) {
+      // If already liked, delete the like record.
+      await supabase.from('likes').delete().match({'post_id': postId, 'user_id': userId});
+      setState(() {
+        _isLiked = false;
+        _likeCount--;
+      });
+    } else {
+      // If not liked, insert a new like record.
+      await supabase.from('likes').insert({'post_id': postId, 'user_id': userId});
+      setState(() {
+        _isLiked = true;
+        _likeCount++;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final String? content = post['content'];
-    final String? photoUrl = post['photo_url'];
+    final String? content = widget.post['content'];
+    final String? photoUrl = widget.post['photo_url'];
+    // **FIXED**: The postId is correctly identified as a String.
+    final String postId = widget.post['id'];
+
+    // Safely get the author's name from the joined 'profiles' data.
+    final profile = widget.post['profiles'];
+    final firstName = profile?['first_name'] ?? '';
+    final lastName = profile?['last_name'] ?? '';
+    final authorName = '$firstName $lastName'.trim();
+
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -123,39 +192,70 @@ class PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (photoUrl != null)
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-              child: Image.network(
-                photoUrl,
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(
-                    heightFactor: 4,
-                    child: CircularProgressIndicator(),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    heightFactor: 4,
-                    child: Icon(Icons.broken_image, color: Colors.grey),
-                  );
-                },
-              ),
+          // Author Name
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Text(
+              authorName.isNotEmpty ? authorName : 'Anonymous',
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
+          ),
+          // Conditionally display the image.
+          if (photoUrl != null)
+            Image.network(
+              photoUrl,
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return const Center(heightFactor: 4, child: CircularProgressIndicator());
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return const Center(heightFactor: 4, child: Icon(Icons.broken_image, color: Colors.grey));
+              },
+            ),
+          // Conditionally display the content/caption.
           if (content != null)
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: Text(content),
             ),
+          // Row for Like and Comment buttons.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        _isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: _isLiked ? Colors.red : Colors.grey,
+                      ),
+                      onPressed: _toggleLike,
+                    ),
+                    Text('$_likeCount'),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.comment_outlined, color: Colors.grey),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommentsScreen(postId: postId),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 }
+
