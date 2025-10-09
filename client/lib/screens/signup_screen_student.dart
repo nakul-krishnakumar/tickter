@@ -53,7 +53,8 @@ class _StudentSignUpScreenState extends State<StudentSignUpScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Success! Please check your email for confirmation.')),
+            content: Text('Success! Please check your email for confirmation.'),
+          ),
         );
         Navigator.pop(context); // Go back to login screen
       }
@@ -72,7 +73,7 @@ class _StudentSignUpScreenState extends State<StudentSignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xFF0d0d0d),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

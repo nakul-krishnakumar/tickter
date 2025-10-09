@@ -159,7 +159,12 @@ class _AdminScreenState extends State<AdminScreen> {
   Widget build(BuildContext context) {
     return AdminOnlyWidget(
       fallback: Scaffold(
-        appBar: AppBar(title: const Text('Access Denied')),
+        backgroundColor: const Color(0xFF0d0d0d),
+        appBar: AppBar(
+          title: const Text('Access Denied'),
+          backgroundColor: const Color(0xFF1a1a1a),
+          foregroundColor: Colors.white,
+        ),
         body: const Center(
           child: Text(
             'You need admin privileges to access this page.',
@@ -168,13 +173,13 @@ class _AdminScreenState extends State<AdminScreen> {
         ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
+        backgroundColor: const Color(0xFF0d0d0d),
         appBar: AppBar(
           title: const Text(
             'Admin Panel',
             style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.5),
           ),
-          backgroundColor: Colors.blue.shade700,
+          backgroundColor: const Color(0xFF1a1a1a),
           foregroundColor: Colors.white,
           elevation: 0,
         ),
@@ -248,6 +253,7 @@ class _AdminScreenState extends State<AdminScreen> {
   }) {
     return Card(
       elevation: 2,
+      color: const Color(0xFF2a2a2a),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -275,13 +281,16 @@ class _AdminScreenState extends State<AdminScreen> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         description,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),

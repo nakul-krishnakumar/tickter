@@ -649,17 +649,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFF0d0d0d),
       appBar: AppBar(
         title: const Text(
           'Institute Calendar',
           style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.5),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: const Color(0xFF1a1a1a),
+        foregroundColor: Colors.white,
         elevation: 0,
         shadowColor: Colors.transparent,
         actions: [
@@ -698,11 +696,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFF2a2a2a),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withOpacity(0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -734,41 +732,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       titleCentered: true,
                       leftChevronIcon: const Icon(
                         Icons.chevron_left_rounded,
-                        color: Colors.grey,
+                        color: Colors.white,
                       ),
                       rightChevronIcon: const Icon(
                         Icons.chevron_right_rounded,
-                        color: Colors.grey,
+                        color: Colors.white,
                       ),
                       titleTextStyle: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                        color: Colors.white,
                         letterSpacing: 0.5,
                       ),
                       headerPadding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF3a3a3a),
                         border: Border(
                           bottom: BorderSide(
-                            color: Colors.grey[200]!,
+                            color: Color(0xFF4a4a4a),
                             width: 1,
                           ),
                         ),
                       ),
                     ),
-                    daysOfWeekStyle: DaysOfWeekStyle(
+                    daysOfWeekStyle: const DaysOfWeekStyle(
                       weekdayStyle: TextStyle(
-                        color: Colors.grey[600],
+                        color: Colors.grey,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
                       weekendStyle: TextStyle(
-                        color: Colors.grey[600],
+                        color: Colors.grey,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
-                      decoration: BoxDecoration(color: Colors.grey[50]),
+                      decoration: BoxDecoration(color: Color(0xFF3a3a3a)),
                     ),
                     calendarStyle: CalendarStyle(
                       cellPadding: const EdgeInsets.all(4),
@@ -776,51 +774,51 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
                       // Default day styling
                       defaultTextStyle: const TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
                       ),
 
                       // Weekend styling
-                      weekendTextStyle: TextStyle(
-                        color: Colors.grey[700],
+                      weekendTextStyle: const TextStyle(
+                        color: Colors.grey,
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
                       ),
 
                       // Today styling
                       todayDecoration: BoxDecoration(
-                        color: theme.primaryColor.withOpacity(0.2),
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: theme.primaryColor, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
-                      todayTextStyle: TextStyle(
-                        color: theme.primaryColor,
+                      todayTextStyle: const TextStyle(
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
 
                       // Selected day styling
                       selectedDecoration: BoxDecoration(
-                        color: theme.primaryColor,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: theme.primaryColor.withOpacity(0.3),
+                            color: Colors.white.withOpacity(0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       selectedTextStyle: const TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
 
                       // Outside days (previous/next month)
-                      outsideTextStyle: TextStyle(
-                        color: Colors.grey[400],
+                      outsideTextStyle: const TextStyle(
+                        color: Color(0xFF666666),
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
                       ),
