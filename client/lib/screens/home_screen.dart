@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:timeago/timeago.dart' as timeago; // For formatting timestamps
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../services/auth_service.dart';
 import 'calendar_screen_student.dart';
@@ -8,6 +8,7 @@ import 'comments_screen.dart';
 import 'create_post.dart';
 import 'login_screen.dart'; // Import for logout navigation
 import 'profile_screen.dart'; // Import for profile navigation
+import 'search_screen.dart'; // Import the search screen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,20 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchPosts();
-
-    // Print current user role when HomeScreen loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authService = AuthService();
-      final currentUser = authService.currentUser;
-      print('🏠 ===== HOME SCREEN LOADED =====');
-      print('👤 CURRENT USER: $currentUser');
-      print(
-        '🎭 USER ROLE: ${currentUser?.role.name.toUpperCase() ?? 'UNKNOWN'}',
-      );
-      print('👑 IS ADMIN: ${currentUser?.isAdmin}');
-      print('🔐 IS LOGGED IN: ${authService.isLoggedIn}');
-      print('===============================');
-    });
   }
 
   Future<void> _fetchPosts() async {
@@ -68,33 +55,17 @@ class _HomeScreenState extends State<HomeScreen> {
     await _fetchPosts();
   }
 
-  Future<void> _signOut() async {
-    try {
-      await Supabase.instance.client.auth.signOut();
-    } catch (error) {
-      // Optionally show an error message
-    } finally {
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // A more modern, Twitter-like AppBar
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         title: const Text(
           'Home',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
+        // Updated and reordered actions
         actions: [
           IconButton(
             icon: const Icon(Icons.calendar_today_outlined),
@@ -105,17 +76,20 @@ class _HomeScreenState extends State<HomeScreen> {
             tooltip: 'Calendar',
           ),
           IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SearchScreen()),
+            ),
+            tooltip: 'Search',
+          ),
+          IconButton(
             icon: const Icon(Icons.person_outline),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProfileScreen()),
             ),
             tooltip: 'Profile',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _signOut,
-            tooltip: 'Logout',
           ),
         ],
       ),
@@ -130,7 +104,6 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          // Restoring your original create icon for the FAB
           child: Image.asset('assets/images/Create_icon.png'),
         ),
       ),
@@ -156,7 +129,6 @@ class _HomeScreenState extends State<HomeScreen> {
           final post = _posts![index];
           return PostCard(post: post);
         },
-        // Adds a clean divider between posts
         separatorBuilder: (context, index) =>
             Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
       ),
@@ -209,7 +181,7 @@ class _PostCardState extends State<PostCard> {
         });
       }
     } catch (e) {
-      // Handle error, e.g., log it
+      // Handle error
     }
   }
 
@@ -230,14 +202,13 @@ class _PostCardState extends State<PostCard> {
             .delete()
             .match({'post_id': postId, 'user_id': userId})
             .catchError((_) {
-              // Revert state on error
-              if (mounted) {
-                setState(() {
-                  _isLiked = true;
-                  _likeCount++;
-                });
-              }
+          if (mounted) {
+            setState(() {
+              _isLiked = true;
+              _likeCount++;
             });
+          }
+        });
       } else {
         _isLiked = true;
         _likeCount++;
@@ -245,14 +216,13 @@ class _PostCardState extends State<PostCard> {
             .from('likes')
             .insert({'post_id': postId, 'user_id': userId})
             .catchError((_) {
-              // Revert state on error
-              if (mounted) {
-                setState(() {
-                  _isLiked = false;
-                  _likeCount--;
-                });
-              }
+          if (mounted) {
+            setState(() {
+              _isLiked = false;
+              _likeCount--;
             });
+          }
+        });
       }
     });
   }
@@ -279,14 +249,12 @@ class _PostCardState extends State<PostCard> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User Avatar
           const CircleAvatar(
             radius: 24,
             backgroundColor: Colors.grey,
             child: Icon(Icons.person, color: Colors.white),
           ),
           const SizedBox(width: 12),
-          // Post Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +307,7 @@ class _PostCardState extends State<PostCard> {
               ? child
               : const Center(child: CircularProgressIndicator()),
           errorBuilder: (context, error, stack) =>
-              const Icon(Icons.broken_image, color: Colors.grey, size: 40),
+          const Icon(Icons.broken_image, color: Colors.grey, size: 40),
         ),
       ),
     );
@@ -369,7 +337,7 @@ class _PostCardState extends State<PostCard> {
           _buildActionButton(
             icon: Icons.share_outlined,
             onPressed: () {},
-          ), // Placeholder for share
+          ),
         ],
       ),
     );
@@ -402,3 +370,4 @@ class _PostCardState extends State<PostCard> {
     );
   }
 }
+
