@@ -3,8 +3,10 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'config_service.dart';
+
 class AdminService {
-  static const String baseUrl = 'http://localhost:8080/api/v1/admin';
+  static String get baseUrl => ConfigService.buildApiUrlV1('admin');
 
   /// Upload timetable PDF
   static Future<Map<String, dynamic>> uploadTimetable(

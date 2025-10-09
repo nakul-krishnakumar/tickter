@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../services/config_service.dart';
 
 class CreatePost extends StatefulWidget {
   const CreatePost({super.key});
@@ -22,8 +25,9 @@ class _CreatePostState extends State<CreatePost> {
 
     if (status.isGranted) {
       final picker = ImagePicker();
-      final XFile? imageFile =
-      await picker.pickImage(source: ImageSource.gallery);
+      final XFile? imageFile = await picker.pickImage(
+        source: ImageSource.gallery,
+      );
       if (imageFile != null) {
         setState(() {
           _selectedImage = File(imageFile.path);
@@ -31,8 +35,11 @@ class _CreatePostState extends State<CreatePost> {
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Library permission required to select an image')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Library permission required to select an image'),
+          ),
+        );
       }
     }
   }
@@ -58,9 +65,8 @@ class _CreatePostState extends State<CreatePost> {
     );
 
     try {
-      // VVVV  CONNECT TO YOUR LOCAL SERVER HERE  VVVV
-      // Use 10.0.2.2 for the Android emulator to connect to your computer's localhost.
-      final uri = Uri.parse('http://10.0.2.2:8081/api/v1/posts/upload');
+      // Use ConfigService to get the API base URL
+      final uri = Uri.parse('https://tickter-server.politedune-284f8f74.southindia.azurecontainerapps.io/api/v1/posts/upload');
       final request = http.MultipartRequest('POST', uri);
 
       request.fields['title'] = 'Default Title';
@@ -68,10 +74,9 @@ class _CreatePostState extends State<CreatePost> {
       request.fields['author'] = Supabase.instance.client.auth.currentUser!.id;
 
       if (_selectedImage != null) {
-        request.files.add(await http.MultipartFile.fromPath(
-          'images',
-          _selectedImage!.path,
-        ));
+        request.files.add(
+          await http.MultipartFile.fromPath('images', _selectedImage!.path),
+        );
       }
 
       final response = await request.send();
@@ -96,8 +101,9 @@ class _CreatePostState extends State<CreatePost> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-            Text('Error: ${e.toString().replaceAll("Exception: ", "")}'),
+            content: Text(
+              'Error: ${e.toString().replaceAll("Exception: ", "")}',
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -114,9 +120,7 @@ class _CreatePostState extends State<CreatePost> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create New Post'),
-      ),
+      appBar: AppBar(title: const Text('Create New Post')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -132,13 +136,16 @@ class _CreatePostState extends State<CreatePost> {
                 ),
                 child: _selectedImage != null
                     ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(_selectedImage!, fit: BoxFit.cover),
-                )
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(_selectedImage!, fit: BoxFit.cover),
+                      )
                     : const Center(
-                  child: Icon(Icons.add_a_photo,
-                      size: 50, color: Colors.grey),
-                ),
+                        child: Icon(
+                          Icons.add_a_photo,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 16),

@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
+import 'services/config_service.dart';
 
 // 2. Make the main function async to wait for files to load
 Future<void> main() async {
@@ -11,12 +12,21 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 4. Load the environment variables from the .env file
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+    print('✅ MAIN: .env file loaded successfully');
+  } catch (e) {
+    print('⚠️  MAIN: Could not load .env file: $e');
+    print('⚠️  MAIN: Using hardcoded fallback values');
+  }
 
-  // 5. Initialize Supabase using the variables from dotenv
+  // 4.1. Validate environment variables
+  ConfigService.validateEnvironment();
+
+  // 5. Initialize Supabase using the ConfigService
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: ConfigService.supabaseUrl,
+    anonKey: ConfigService.supabaseAnonKey,
   );
 
   // 6. Initialize AuthService
@@ -32,9 +42,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0d0d0d),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1a1a1a),
+          foregroundColor: Colors.white,
+        ),
+        cardColor: const Color(0xFF2a2a2a),
+        primaryColor: Colors.white,
+      ),
+      home: const LoginScreen(),
     );
   }
 }

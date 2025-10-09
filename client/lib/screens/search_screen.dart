@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'home_screen.dart'; // We'll reuse the PostCard widget
 
 class SearchScreen extends StatefulWidget {
@@ -48,8 +50,10 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      // Use the correct local URL for your backend's search endpoint.
-      final uri = Uri.parse('http://10.0.2.2:8081/api/v1/posts/search?q=$query');
+      // Use the ConfigService to get the API base URL
+      final uri = Uri.parse(
+        'https://tickter-server.politedune-284f8f74.southindia.azurecontainerapps.io/api/v1/posts/search?q=$query',
+      );
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
@@ -78,8 +82,10 @@ class _SearchScreenState extends State<SearchScreen> {
         title: TextField(
           controller: _searchController,
           autofocus: true, // Automatically focus the search bar
+          style: const TextStyle(color: Colors.white),
           decoration: const InputDecoration(
             hintText: 'Search posts...',
+            hintStyle: TextStyle(color: Colors.grey),
             border: InputBorder.none,
           ),
           onChanged: _onSearchChanged,
@@ -94,13 +100,25 @@ class _SearchScreenState extends State<SearchScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
-      return Center(child: Text('Error: $_error'));
+      return Center(
+        child: Text(
+          'Error: $_error',
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
     }
     if (_results.isEmpty && _searchController.text.isNotEmpty) {
-      return const Center(child: Text('No results found.'));
+      return const Center(
+        child: Text('No results found.', style: TextStyle(color: Colors.white)),
+      );
     }
     if (_results.isEmpty) {
-      return const Center(child: Text('Start typing to search for posts.'));
+      return const Center(
+        child: Text(
+          'Start typing to search for posts.',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
     }
 
     // Display the results in a ListView, reusing the PostCard widget.

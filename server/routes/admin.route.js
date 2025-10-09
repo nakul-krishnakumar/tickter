@@ -53,9 +53,9 @@ const upload = multer({
 
 // Test endpoint to verify server is running latest code
 router.get("/test", (req, res) => {
-    res.json({ 
+    res.json({
         message: "Admin routes working - UPDATED VERSION",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
     });
 });
 

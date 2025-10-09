@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return PostCard(post: post);
         },
         separatorBuilder: (context, index) =>
-            Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+            const Divider(height: 1, thickness: 1, color: Color(0xFF4a4a4a)),
       ),
     );
   }
@@ -202,13 +202,13 @@ class _PostCardState extends State<PostCard> {
             .delete()
             .match({'post_id': postId, 'user_id': userId})
             .catchError((_) {
-          if (mounted) {
-            setState(() {
-              _isLiked = true;
-              _likeCount++;
+              if (mounted) {
+                setState(() {
+                  _isLiked = true;
+                  _likeCount++;
+                });
+              }
             });
-          }
-        });
       } else {
         _isLiked = true;
         _likeCount++;
@@ -216,13 +216,13 @@ class _PostCardState extends State<PostCard> {
             .from('likes')
             .insert({'post_id': postId, 'user_id': userId})
             .catchError((_) {
-          if (mounted) {
-            setState(() {
-              _isLiked = false;
-              _likeCount--;
+              if (mounted) {
+                setState(() {
+                  _isLiked = false;
+                  _likeCount--;
+                });
+              }
             });
-          }
-        });
       }
     });
   }
@@ -244,7 +244,7 @@ class _PostCardState extends State<PostCard> {
     final String postId = widget.post['id'].toString();
 
     return Container(
-      color: Colors.white,
+      color: const Color(0xFF2a2a2a),
       padding: const EdgeInsets.all(12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,7 +265,11 @@ class _PostCardState extends State<PostCard> {
                     padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
                     child: Text(
                       content,
-                      style: const TextStyle(fontSize: 15, height: 1.3),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        height: 1.3,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 if (photoUrl != null) _buildPostImage(photoUrl),
@@ -283,13 +287,14 @@ class _PostCardState extends State<PostCard> {
       children: [
         Text(
           authorName,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.white,
+          ),
         ),
         const SizedBox(width: 8),
-        Text(
-          timeAgo,
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-        ),
+        Text(timeAgo, style: const TextStyle(color: Colors.grey, fontSize: 14)),
       ],
     );
   }
@@ -307,7 +312,7 @@ class _PostCardState extends State<PostCard> {
               ? child
               : const Center(child: CircularProgressIndicator()),
           errorBuilder: (context, error, stack) =>
-          const Icon(Icons.broken_image, color: Colors.grey, size: 40),
+              const Icon(Icons.broken_image, color: Colors.grey, size: 40),
         ),
       ),
     );
@@ -331,13 +336,10 @@ class _PostCardState extends State<PostCard> {
           _buildActionButton(
             icon: _isLiked ? Icons.favorite : Icons.favorite_border,
             text: _likeCount > 0 ? '$_likeCount' : '',
-            color: _isLiked ? Colors.red : Colors.grey.shade600,
+            color: _isLiked ? Colors.red : Colors.grey,
             onPressed: _toggleLike,
           ),
-          _buildActionButton(
-            icon: Icons.share_outlined,
-            onPressed: () {},
-          ),
+          _buildActionButton(icon: Icons.share_outlined, onPressed: () {}),
         ],
       ),
     );
@@ -353,16 +355,13 @@ class _PostCardState extends State<PostCard> {
       onTap: onPressed,
       child: Row(
         children: [
-          Icon(icon, size: 20, color: color ?? Colors.grey.shade600),
+          Icon(icon, size: 20, color: color ?? Colors.grey),
           if (text.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(left: 6.0),
               child: Text(
                 text,
-                style: TextStyle(
-                  color: color ?? Colors.grey.shade600,
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: color ?? Colors.grey, fontSize: 14),
               ),
             ),
         ],
@@ -370,4 +369,3 @@ class _PostCardState extends State<PostCard> {
     );
   }
 }
-
