@@ -60,10 +60,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Profile not found.'));
+            return const Center(child: Text('Profile not found.', style: TextStyle(color: Colors.white)));
           }
 
           final profile = snapshot.data!;
@@ -83,9 +83,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const Center(
                         child: CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.black12,
+                          backgroundColor: const Color(0xFF616161),
                           child:
-                          Icon(Icons.person, size: 60, color: Colors.white),
+                          const Icon(Icons.person, size: 60, color: Colors.white),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -94,19 +94,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: 'Name',
                         subtitle: '$firstName $lastName',
                       ),
-                      const Divider(),
+                      const Divider(color: Color(0xFF4a4a4a)),
                       _buildProfileInfoTile(
                         icon: Icons.confirmation_number_outlined,
                         title: 'Roll Number',
                         subtitle: rollNumber,
                       ),
-                      const Divider(),
+                      const Divider(color: Color(0xFF4a4a4a)),
                       _buildProfileInfoTile(
                         icon: Icons.group_outlined,
                         title: 'Batch',
                         subtitle: batch,
                       ),
-                      const Divider(),
+                      const Divider(color: Color(0xFF4a4a4a)),
                       _buildProfileInfoTile(
                         icon: Icons.book_outlined,
                         title: 'Elective',
@@ -147,18 +147,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String subtitle,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.grey.shade600),
+      leading: Icon(icon, color: Colors.grey),
       title: Text(
         title,
-        style: TextStyle(
-          color: Colors.grey.shade600,
+        style: const TextStyle(
+          color: Colors.grey,
           fontSize: 14,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: const TextStyle(
-          color: Colors.black87,
+          color: Colors.white,
           fontSize: 18,
           fontWeight: FontWeight.w500,
         ),
