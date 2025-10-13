@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'login_screen.dart'; // Import for logout navigation
 
 class ProfileScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
-              (route) => false, // This removes all previous routes
+          (route) => false, // This removes all previous routes
         );
       }
     }
@@ -50,9 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Profile'),
-      ),
+      appBar: AppBar(title: const Text('My Profile')),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _profileFuture,
         builder: (context, snapshot) {
@@ -60,10 +59,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Profile not found.', style: TextStyle(color: Colors.white)));
+            return const Center(
+              child: Text(
+                'Profile not found.',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
           }
 
           final profile = snapshot.data!;
@@ -83,9 +92,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const Center(
                         child: CircleAvatar(
                           radius: 50,
-                          backgroundColor: const Color(0xFF616161),
-                          child:
-                          const Icon(Icons.person, size: 60, color: Colors.white),
+                          backgroundColor: Color(0xFF616161),
+                          child: Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -150,10 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       leading: Icon(icon, color: Colors.grey),
       title: Text(
         title,
-        style: const TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-        ),
+        style: const TextStyle(color: Colors.grey, fontSize: 14),
       ),
       subtitle: Text(
         subtitle,
@@ -166,4 +175,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

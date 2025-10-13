@@ -43,9 +43,10 @@ class ConfigService {
   static String get supabaseAnonKey {
     final key = dotenv.env['SUPABASE_ANON_KEY'];
     if (key == null || key.isEmpty) {
-      // Fallback to constants for web/production builds
-      print('⚠️  CONFIG: SUPABASE_ANON_KEY not found in .env, using fallback');
-      return AppConstants.supabaseAnonKey;
+      throw Exception(
+        '🔐 SECURITY ERROR: SUPABASE_ANON_KEY not found in .env file!\n'
+        'Please ensure your .env file contains: SUPABASE_ANON_KEY="your-key-here"',
+      );
     }
     return key;
   }
@@ -54,11 +55,10 @@ class ConfigService {
   static String get supabaseServiceKey {
     final key = dotenv.env['SUPABASE_SERVICE_KEY'];
     if (key == null || key.isEmpty) {
-      // Fallback to constants for web/production builds
-      print(
-        '⚠️  CONFIG: SUPABASE_SERVICE_KEY not found in .env, using fallback',
+      throw Exception(
+        '🔐 SECURITY ERROR: SUPABASE_SERVICE_KEY not found in .env file!\n'
+        'Please ensure your .env file contains: SUPABASE_SERVICE_KEY="your-service-key-here"',
       );
-      return AppConstants.supabaseServiceKey;
     }
     return key;
   }
@@ -79,29 +79,35 @@ class ConfigService {
 
     // Check if .env file was loaded properly
     final envLoaded = dotenv.env.isNotEmpty;
-    print('� .env file loaded: ${envLoaded ? "✓" : "✗ (using fallbacks)"}');
+    print('📄 .env file loaded: ${envLoaded ? "✓" : "✗"}');
 
-    // Validate each configuration
-    final apiUrl = apiBaseUrl;
-    final supaUrl = supabaseUrl;
-    final anonKey = supabaseAnonKey;
-    final serviceKey = supabaseServiceKey;
-
-    print('�📡 API Base URL: $apiUrl');
-    print('🔗 Supabase URL: $supaUrl');
-    print(
-      '🔑 Supabase Anon Key: ${anonKey.isNotEmpty ? "✓ Loaded" : "✗ Missing"}',
-    );
-    print(
-      '🔐 Supabase Service Key: ${serviceKey.isNotEmpty ? "✓ Loaded" : "✗ Missing"}',
-    );
-
-    if (envLoaded) {
-      print('✅ CONFIG: All environment variables loaded from .env file!');
-    } else {
+    if (!envLoaded) {
       print(
-        '⚠️  CONFIG: Using hardcoded fallbacks (recommended for production builds)',
+        '⚠️  CONFIG WARNING: .env file not loaded! This may cause issues with sensitive keys.',
       );
+    }
+
+    try {
+      // Validate each configuration (this will throw if keys are missing)
+      final apiUrl = apiBaseUrl;
+      final supaUrl = supabaseUrl;
+      final anonKey = supabaseAnonKey;
+      final serviceKey = supabaseServiceKey;
+
+      print('📡 API Base URL: $apiUrl');
+      print('🔗 Supabase URL: $supaUrl');
+      print(
+        '🔑 Supabase Anon Key: ${anonKey.isNotEmpty ? "✓ Loaded securely" : "✗ Missing"}',
+      );
+      print(
+        '🔐 Supabase Service Key: ${serviceKey.isNotEmpty ? "✓ Loaded securely" : "✗ Missing"}',
+      );
+
+      print('✅ CONFIG: All environment variables validated successfully!');
+      print('🔒 SECURITY: All sensitive keys loaded from .env (not hardcoded)');
+    } catch (e) {
+      print('❌ CONFIG ERROR: $e');
+      rethrow;
     }
   }
 }
